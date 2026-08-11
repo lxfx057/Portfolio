@@ -1,90 +1,106 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
-/**
- * Anima gli elementi .reveal solo la prima volta che compaiono.
- * Una volta visibili, applica `.is-revealed` e rimuove l'osservatore per memorizzare lo stato.
- */
+/** Rivela gli elementi con classe "reveal" in modo fluido e performante. */
 export function useScrollReveal() {
   useEffect(() => {
-    const observer = new IntersectionObserver(
+    const els = Array.from(document.querySelectorAll<HTMLElement>(".reveal"));
+    if (!("IntersectionObserver" in window)) {
+      els.forEach((el) => el.classList.add("is-visible"));
+      return;
+    }
+
+    const io = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            entry.target.classList.add("is-revealed");
-            // MEMORIZZAZIONE: smette di osservare l'elemento per non riattivare l'animazione
-            observer.unobserve(entry.target);
+            entry.target.classList.add("is-visible");
+            // Una volta visibile, smetti di osservarlo per evitare ricalcoli inutili
+            io.unobserve(entry.target);
           }
         });
       },
-      {
-        threshold: 0.1,
-        rootMargin: "0px 0px -40px 0px",
-      }
+      { threshold: 0.1, rootMargin: "0px 0px -5% 0px" },
     );
 
-    const elements = document.querySelectorAll(".reveal");
-    elements.forEach((el) => {
-      // Se l'elemento era già stato rivelato in precedenza, non lo osserviamo nemmeno
-      if (!el.classList.contains("is-revealed")) {
-        observer.observe(el);
-      }
-    });
-
-    return () => observer.disconnect();
+    els.forEach((el) => io.observe(el));
+    return () => io.disconnect();
   }, []);
 }
 
-/**
- * Traccia la sezione attiva per la navigazione.
- */
-export function useScrollSpy(ids: string[], offset = 100) {
-  const [activeId, setActiveId] = useState<string>("");
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollPosition = window.scrollY + offset;
-
-      for (let i = ids.length - 1; i >= 0; i--) {
-        const element = document.getElementById(ids[i]);
-        if (element && element.offsetTop <= scrollPosition) {
-          setActiveId(ids[i]);
-          return;
-        }
-      }
-      setActiveId("");
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
-
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [ids, offset]);
-
-  return activeId;
-}
-
-/**
- * Nasconde l'header durante lo scroll verso il basso.
- */
-export function useHideOnScroll() {
+/** Nasconde l'header quando si scende e lo mostra quando si sale, sincronizzato con i frame del display. */
+export function useHideOnScroll(threshold = 90) {
   const [hidden, setHidden] = useState(false);
 
   useEffect(() => {
-    let lastScrollY = window.scrollY;
+    let lastY = window.scrollY;
+    let ticking = false;
 
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      if (currentScrollY > lastScrollY && currentScrollY > 80) {
-        setHidden(true);
-      } else {
-        setHidden(false);
+    const updateScroll = () => {
+      const y = window.scrollY;
+      const delta = y - lastY;
+
+      if (Math.abs(delta) > 6) {
+        setHidden(delta > 0 && y > threshold);
+        lastY = y;
       }
-      lastScrollY = currentScrollY;
+      ticking = false;
     };
 
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+    const onScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(updateScroll);
+        ticking = true;
+      }
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [threshold]);
 
   return hidden;
+}
+
+/** Sincronizza la voce attiva del menu senza forzare reflow continui nel DOM. */
+export function useScrollSpy(ids: string[], offset = 80) {
+  const [active, setActive] = useState(ids[0] ?? "");
+  const elementsRef = useRef<Map<string, HTMLElement>>(new Map());
+
+  // Cache dei riferimenti DOM per non fare document.getElementById ad ogni frame
+  useEffect(() => {
+    const map = new Map<string, HTMLElement>();
+    ids.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) map.set(id, el);
+    });
+    elementsRef.current = map;
+  }, [ids]);
+
+  useEffect(() => {
+    let ticking = false;
+
+    const checkActive = () => {
+      let current = ids[0] ?? "";
+      for (const id of ids) {
+        const el = elementsRef.current.get(id);
+        if (el && el.getBoundingClientRect().top - offset <= 0) {
+          current = id;
+        }
+      }
+      setActive((prev) => (prev !== current ? current : prev));
+      ticking = false;
+    };
+
+    const onScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(checkActive);
+        ticking = true;
+      }
+    };
+
+    checkActive();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [ids, offset]);
+
+  return active;
 }
