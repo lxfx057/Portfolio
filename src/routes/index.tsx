@@ -160,19 +160,18 @@ const Eyebrow = memo(function Eyebrow({ index, label }: { index: string; label: 
   );
 });
 
-/** Titolo con animazione lettera per lettera alleggerita per CPU/GPU. */
+/** Titolo con animazione lettera per lettera. */
 const SplitText = memo(function SplitText({ text, delay = 0 }: { text: string; delay?: number }) {
-  let globalIdx = 0;
+  let i = 0;
   return (
     <>
       {text.split(" ").map((word, w) => (
         <span key={`${word}-${w}`} className="inline-block whitespace-nowrap">
           {word.split("").map((ch) => {
-            const d = (delay + globalIdx * 0.025).toFixed(3);
-            globalIdx++;
+            const d = delay + i++ * 0.028;
             return (
               <span
-                key={`${ch}-${globalIdx}`}
+                key={`${ch}-${d}`}
                 className="char-in"
                 style={{ animationDelay: `${d}s` }}
               >
@@ -187,7 +186,7 @@ const SplitText = memo(function SplitText({ text, delay = 0 }: { text: string; d
   );
 });
 
-/** Card con glow e tilt 3D ultra-ottimizzato: zero reflow durante lo scroll. */
+/** Card con glow che segue il mouse e leggero tilt 3D. */
 const GlowCard = memo(function GlowCard({
   children,
   className = "",
@@ -198,26 +197,33 @@ const GlowCard = memo(function GlowCard({
   style?: React.CSSProperties;
 }) {
   const ref = useRef<HTMLDivElement>(null);
+  const rafId = useRef<number | null>(null);
 
   const onMove = useCallback((e: MouseEvent<HTMLDivElement>) => {
-    const el = ref.current;
-    if (!el) return;
-    
-    // Usa le coordinate dell'evento nativo per evitare getBoundingClientRect durante lo scroll
-    const x = e.nativeEvent.offsetX;
-    const y = e.nativeEvent.offsetY;
-    const w = el.offsetWidth || 1;
-    const h = el.offsetHeight || 1;
+    if (rafId.current !== null) return;
 
-    el.style.setProperty("--px", `${x}px`);
-    el.style.setProperty("--py", `${y}px`);
-    el.style.transform = `perspective(900px) rotateX(${(((y / h) - 0.5) * -5).toFixed(1)}deg) rotateY(${(((x / w) - 0.5) * 5).toFixed(1)}deg) translateY(-3px)`;
+    const clientX = e.clientX;
+    const clientY = e.clientY;
+
+    rafId.current = requestAnimationFrame(() => {
+      rafId.current = null;
+      const el = ref.current;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      const x = clientX - r.left;
+      const y = clientY - r.top;
+      el.style.setProperty("--px", `${x}px`);
+      el.style.setProperty("--py", `${y}px`);
+      el.style.transform = `perspective(900px) rotateX(${((y / r.height - 0.5) * -6).toFixed(2)}deg) rotateY(${((x / r.width - 0.5) * 6).toFixed(2)}deg) translateY(-4px)`;
+    });
   }, []);
 
   const onLeave = useCallback(() => {
-    if (ref.current) {
-      ref.current.style.transform = "";
+    if (rafId.current !== null) {
+      cancelAnimationFrame(rafId.current);
+      rafId.current = null;
     }
+    if (ref.current) ref.current.style.transform = "";
   }, []);
 
   return (
@@ -226,7 +232,7 @@ const GlowCard = memo(function GlowCard({
       style={style}
       onMouseMove={onMove}
       onMouseLeave={onLeave}
-      className={`card-glow transition-transform duration-300 ease-out ${className}`}
+      className={`card-glow transition-transform duration-500 ease-out ${className}`}
     >
       {children}
     </div>
