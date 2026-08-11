@@ -170,16 +170,15 @@
 
 @utility reveal {
   opacity: 0;
-  transform: translateY(26px);
+  transform: translate3d(0, 26px, 0);
   transition:
     opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
     transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
   transition-delay: var(--d, 0s);
-  will-change: opacity, transform;
 
   &.is-visible {
     opacity: 1;
-    transform: none;
+    transform: translate3d(0, 0, 0);
   }
 }
 
@@ -205,7 +204,7 @@
     box-shadow 0.45s ease,
     border-color 0.45s ease;
   &:hover {
-    transform: translateY(-6px);
+    transform: translate3d(0, -6px, 0);
     box-shadow: 0 24px 60px -30px color-mix(in oklab, var(--color-primary) 70%, transparent);
   }
 }
@@ -238,6 +237,7 @@
     border-radius: 50%;
     filter: blur(90px);
     opacity: 0.16;
+    transform: translateZ(0);
   }
 
   &::before {
@@ -282,11 +282,11 @@
 @keyframes reveal-up {
   from {
     opacity: 0;
-    transform: translateY(24px);
+    transform: translate3d(0, 24px, 0);
   }
   to {
     opacity: 1;
-    transform: none;
+    transform: translate3d(0, 0, 0);
   }
 }
 
@@ -339,14 +339,14 @@
 @utility char-in {
   display: inline-block;
   opacity: 0;
-  transform: translateY(0.7em) rotate(6deg);
+  transform: translate3d(0, 0.7em, 0) rotate(6deg);
   animation: char-up 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 @keyframes char-up {
   to {
     opacity: 1;
-    transform: none;
+    transform: translate3d(0, 0, 0) rotate(0deg);
   }
 }
 
@@ -355,6 +355,7 @@
   width: max-content;
   gap: 0.75rem;
   animation: marquee var(--dur, 40s) linear infinite;
+  will-change: transform;
 }
 
 @utility marquee-mask {
@@ -366,7 +367,7 @@
 
 @keyframes marquee {
   to {
-    transform: translateX(-50%);
+    transform: translate3d(-50%, 0, 0);
   }
 }
 
@@ -404,7 +405,7 @@
 
 @keyframes floaty {
   to {
-    transform: translateY(-12px);
+    transform: translate3d(0, -12px, 0);
   }
 }
 
@@ -417,6 +418,7 @@
   background: linear-gradient(90deg, var(--color-primary), oklch(0.8 0.14 200));
   box-shadow: 0 0 18px color-mix(in oklab, var(--color-primary) 60%, transparent);
   transform-origin: left;
+  will-change: transform;
 }
 
 @media (prefers-reduced-motion: reduce) {
