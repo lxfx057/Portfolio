@@ -1,4 +1,4 @@
-import { useRef, useState, type MouseEvent } from "react";
+import { useRef, useState, memo, useCallback, type MouseEvent } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useScrollReveal, useScrollSpy, useHideOnScroll } from "@/hooks/use-scroll-reveal";
 import { usePointerGlow, useScrollProgress } from "@/hooks/use-pointer-glow";
@@ -131,8 +131,26 @@ const process = [
   },
 ];
 
+const aboutStats = [
+  ["5", "Linguaggi principali"],
+  ["UI/UX", "Design end-to-end"],
+  ["Web+Mobile", "Responsive"],
+  ["Offline", "Automation"],
+];
+
+const contactLinks = [
+  { label: "Email", value: "lucafinaldi3@gmail.com", href: "mailto:lucafinaldi3@gmail.com" },
+  {
+    label: "LinkedIn",
+    value: "Luca Finaldi",
+    href: "https://www.linkedin.com/in/luca-finaldi-840a44309/",
+  },
+  { label: "Instagram", value: "@lukefinaldi_", href: "https://instagram.com/lukefinaldi_" },
+  { label: "WhatsApp", value: "+39 392 4484032", href: "https://wa.me/393924484032" },
+];
+
 /** Etichetta numerata sopra ai titoli di sezione. */
-function Eyebrow({ index, label }: { index: string; label: string }) {
+const Eyebrow = memo(function Eyebrow({ index, label }: { index: string; label: string }) {
   return (
     <p className="reveal mb-4 flex items-center gap-3 text-xs font-medium tracking-[0.2em] text-primary uppercase">
       <span className="tabular-nums opacity-60">{index}</span>
@@ -140,10 +158,10 @@ function Eyebrow({ index, label }: { index: string; label: string }) {
       {label}
     </p>
   );
-}
+});
 
 /** Titolo con animazione lettera per lettera. */
-function SplitText({ text, delay = 0 }: { text: string; delay?: number }) {
+const SplitText = memo(function SplitText({ text, delay = 0 }: { text: string; delay?: number }) {
   let i = 0;
   return (
     <>
@@ -166,10 +184,10 @@ function SplitText({ text, delay = 0 }: { text: string; delay?: number }) {
       ))}
     </>
   );
-}
+});
 
 /** Card con glow che segue il mouse e leggero tilt 3D. */
-function GlowCard({
+const GlowCard = memo(function GlowCard({
   children,
   className = "",
   style,
@@ -179,21 +197,34 @@ function GlowCard({
   style?: React.CSSProperties;
 }) {
   const ref = useRef<HTMLDivElement>(null);
+  const rafId = useRef<number | null>(null);
 
-  const onMove = (e: MouseEvent<HTMLDivElement>) => {
-    const el = ref.current;
-    if (!el) return;
-    const r = el.getBoundingClientRect();
-    const x = e.clientX - r.left;
-    const y = e.clientY - r.top;
-    el.style.setProperty("--px", `${x}px`);
-    el.style.setProperty("--py", `${y}px`);
-    el.style.transform = `perspective(900px) rotateX(${((y / r.height - 0.5) * -6).toFixed(2)}deg) rotateY(${((x / r.width - 0.5) * 6).toFixed(2)}deg) translateY(-4px)`;
-  };
+  const onMove = useCallback((e: MouseEvent<HTMLDivElement>) => {
+    if (rafId.current !== null) return;
 
-  const onLeave = () => {
+    const clientX = e.clientX;
+    const clientY = e.clientY;
+
+    rafId.current = requestAnimationFrame(() => {
+      rafId.current = null;
+      const el = ref.current;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      const x = clientX - r.left;
+      const y = clientY - r.top;
+      el.style.setProperty("--px", `${x}px`);
+      el.style.setProperty("--py", `${y}px`);
+      el.style.transform = `perspective(900px) rotateX(${((y / r.height - 0.5) * -6).toFixed(2)}deg) rotateY(${((x / r.width - 0.5) * 6).toFixed(2)}deg) translateY(-4px)`;
+    });
+  }, []);
+
+  const onLeave = useCallback(() => {
+    if (rafId.current !== null) {
+      cancelAnimationFrame(rafId.current);
+      rafId.current = null;
+    }
     if (ref.current) ref.current.style.transform = "";
-  };
+  }, []);
 
   return (
     <div
@@ -206,9 +237,9 @@ function GlowCard({
       {children}
     </div>
   );
-}
+});
 
-function Marquee({ items, reverse = false }: { items: string[]; reverse?: boolean }) {
+const Marquee = memo(function Marquee({ items, reverse = false }: { items: string[]; reverse?: boolean }) {
   const loop = [...items, ...items];
   return (
     <div className="marquee-mask overflow-hidden py-1">
@@ -227,9 +258,9 @@ function Marquee({ items, reverse = false }: { items: string[]; reverse?: boolea
       </div>
     </div>
   );
-}
+});
 
-function ContactForm() {
+const ContactForm = memo(function ContactForm() {
   const [name, setName] = useState("");
   const [message, setMessage] = useState("");
 
@@ -275,7 +306,7 @@ function ContactForm() {
       </div>
     </form>
   );
-}
+});
 
 function Index() {
   useScrollReveal();
@@ -419,12 +450,7 @@ function Index() {
             soprattutto con Python, React, PHP, Go e Scala, e scrivo articoli sul mio portfolio.
           </p>
           <dl className="reveal mt-12 grid grid-cols-2 gap-px overflow-hidden rounded-3xl border border-border bg-border sm:grid-cols-4">
-            {[
-              ["5", "Linguaggi principali"],
-              ["UI/UX", "Design end-to-end"],
-              ["Web+Mobile", "Responsive"],
-              ["Offline", "Automation"],
-            ].map(([value, label]) => (
+            {aboutStats.map(([value, label]) => (
               <GlowCard key={label} className="bg-card px-4 py-7 text-center">
                 <dt className="text-xl font-semibold sm:text-2xl">{value}</dt>
                 <dd className="mt-1 text-xs text-muted-foreground">{label}</dd>
@@ -539,16 +565,7 @@ function Index() {
             </p>
             <ContactForm />
             <div className="reveal mt-10 grid gap-px overflow-hidden rounded-3xl bg-surface-dark-foreground/10 sm:grid-cols-2">
-              {[
-                { label: "Email", value: "lucafinaldi3@gmail.com", href: "mailto:lucafinaldi3@gmail.com" },
-                {
-                  label: "LinkedIn",
-                  value: "Luca Finaldi",
-                  href: "https://www.linkedin.com/in/luca-finaldi-840a44309/",
-                },
-                { label: "Instagram", value: "@lukefinaldi_", href: "https://instagram.com/lukefinaldi_" },
-                { label: "WhatsApp", value: "+39 392 4484032", href: "https://wa.me/393924484032" },
-              ].map((c) => (
+              {contactLinks.map((c) => (
                 <a
                   key={c.label}
                   href={c.href}
