@@ -160,7 +160,7 @@ const Eyebrow = memo(function Eyebrow({ index, label }: { index: string; label: 
   );
 });
 
-/** Titolo con animazione lettera per lettera alleggerita per CPU/GPU. */
+/** Titolo con animazione lettera per lettera alleggerita. */
 const SplitText = memo(function SplitText({ text, delay = 0 }: { text: string; delay?: number }) {
   let globalIdx = 0;
   return (
@@ -187,7 +187,7 @@ const SplitText = memo(function SplitText({ text, delay = 0 }: { text: string; d
   );
 });
 
-/** Card con glow e tilt 3D ultra-ottimizzato: zero reflow durante lo scroll. */
+/** Card con glow e tilt 3D leggero e zero impatto sullo scroll. */
 const GlowCard = memo(function GlowCard({
   children,
   className = "",
@@ -203,7 +203,6 @@ const GlowCard = memo(function GlowCard({
     const el = ref.current;
     if (!el) return;
     
-    // Usa le coordinate dell'evento nativo per evitare getBoundingClientRect durante lo scroll
     const x = e.nativeEvent.offsetX;
     const y = e.nativeEvent.offsetY;
     const w = el.offsetWidth || 1;
@@ -211,7 +210,7 @@ const GlowCard = memo(function GlowCard({
 
     el.style.setProperty("--px", `${x}px`);
     el.style.setProperty("--py", `${y}px`);
-    el.style.transform = `perspective(900px) rotateX(${(((y / h) - 0.5) * -5).toFixed(1)}deg) rotateY(${(((x / w) - 0.5) * 5).toFixed(1)}deg) translateY(-3px)`;
+    el.style.transform = `perspective(900px) rotateX(${(((y / h) - 0.5) * -4).toFixed(1)}deg) rotateY(${(((x / w) - 0.5) * 4).toFixed(1)}deg) translateY(-2px)`;
   }, []);
 
   const onLeave = useCallback(() => {
