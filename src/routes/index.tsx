@@ -145,7 +145,7 @@ const contactLinks = [
     value: "Luca Finaldi",
     href: "https://www.linkedin.com/in/luca-finaldi-840a44309/",
   },
-  { label: "Instagram", value: "@lukefinaldi_", href: "https://instagram.com/lukefinaldi_" },
+  { label: "Instagram", value: "@lukafinaldi_", href: "https://instagram.com/lukafinaldi_" },
   { label: "WhatsApp", value: "+39 392 4484032", href: "https://wa.me/393924484032" },
 ];
 
