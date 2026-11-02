@@ -82,6 +82,7 @@ const now = [
 const nav = [
   { label: "Chi sono", id: "about" },
   { label: "Servizi", id: "services" },
+  { label: "Progetti", id: "projects" },
   { label: "Competenze", id: "skills" },
   { label: "Adesso", id: "learning" },
   { label: "Contatti", id: "contact" },
@@ -103,6 +104,33 @@ const services = [
   {
     title: "Sicurezza & performance",
     text: "Best practice di sicurezza, audit delle dipendenze e ottimizzazione dei tempi di caricamento.",
+  },
+];
+
+const projects = [
+  {
+    title: "Audify",
+    category: "Audio · Web app",
+    description: "Lettore multimediale locale con playlist, preferiti e equalizzatore.",
+    href: "https://github.com/lxfx057/Audify",
+  },
+  {
+    title: "Universal Modding Center",
+    category: "Android · iOS",
+    description: "Centro di risorse e guide per strumenti Android e procedure iOS supportate.",
+    href: "https://github.com/lxfx057/Modding-Universal-",
+  },
+  {
+    title: "Nova Studio",
+    category: "Design · Editor",
+    description: "Editor visuale per creare layout, pagine e prototipi esportabili.",
+    href: "https://github.com/lxfx057/Nova-Studio",
+  },
+  {
+    title: "File Share 98",
+    category: "WebRTC · Sharing",
+    description: "Esperimento di trasferimento file tra dispositivi tramite collegamento temporaneo.",
+    href: "https://github.com/lxfx057/file-share",
   },
 ];
 
@@ -481,6 +509,38 @@ function Index() {
                 </span>
                 <h3 className="mt-3 text-xl font-semibold">{s.title}</h3>
                 <p className="mt-3 text-muted-foreground">{s.text}</p>
+              </GlowCard>
+            ))}
+          </div>
+        </section>
+
+        <section id="projects" className="mx-auto max-w-5xl px-5 py-24 sm:py-28">
+          <Eyebrow index="03" label="Progetti" />
+          <h2 className="reveal text-[clamp(1.9rem,5vw,3rem)] font-semibold">Cose che sto costruendo.</h2>
+          <p className="reveal mt-4 max-w-xl text-lg text-muted-foreground">
+            Una selezione di progetti personali: strumenti pratici, esperimenti e applicazioni web.
+          </p>
+          <div className="mt-12 grid gap-5 sm:grid-cols-2">
+            {projects.map((project, i) => (
+              <GlowCard
+                key={project.title}
+                style={{ ["--d" as string]: `${i * 0.08}s` }}
+                className="reveal lift flex h-full flex-col rounded-3xl bg-card p-7 ring-1 ring-border"
+              >
+                <span className="text-xs font-medium tracking-widest text-primary uppercase">
+                  {project.category}
+                </span>
+                <h3 className="mt-3 text-xl font-semibold">{project.title}</h3>
+                <p className="mt-3 flex-1 text-muted-foreground">{project.description}</p>
+                <a
+                  href={project.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="group mt-6 inline-flex items-center gap-2 text-sm font-medium text-primary"
+                >
+                  Esplora su GitHub
+                  <span className="transition-transform group-hover:translate-x-1" aria-hidden="true">↗</span>
+                </a>
               </GlowCard>
             ))}
           </div>
