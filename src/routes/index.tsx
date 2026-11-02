@@ -547,7 +547,7 @@ function Index() {
         </section>
 
         <section className="mx-auto max-w-5xl px-5 py-24 sm:py-28">
-          <Eyebrow index="03" label="Metodo" />
+          <Eyebrow index="04" label="Metodo" />
           <h2 className="reveal text-[clamp(1.9rem,5vw,3rem)] font-semibold">Come lavoro.</h2>
           <ol className="mt-12 grid gap-px overflow-hidden rounded-3xl border border-border bg-border sm:grid-cols-2 lg:grid-cols-4">
             {process.map((p, i) => (
@@ -569,7 +569,7 @@ function Index() {
 
         <section id="skills" className="mt-16 bg-secondary/70 py-24 backdrop-blur-sm sm:py-32">
           <div className="mx-auto max-w-5xl px-5">
-            <Eyebrow index="04" label="Stack" />
+            <Eyebrow index="05" label="Stack" />
             <h2 className="reveal text-[clamp(1.9rem,5vw,3rem)] font-semibold">Competenze.</h2>
             <div className="mt-12 space-y-8">
               <div className="reveal">
@@ -589,7 +589,7 @@ function Index() {
         </section>
 
         <section id="learning" className="mx-auto max-w-5xl px-5 py-24 sm:py-32">
-          <Eyebrow index="05" label="Adesso" />
+          <Eyebrow index="06" label="Adesso" />
           <h2 className="reveal text-[clamp(1.9rem,5vw,3rem)] font-semibold">
             Adesso.
           </h2>
@@ -621,7 +621,7 @@ function Index() {
           <div className="float-slow pointer-events-none absolute -bottom-32 left-1/2 size-[32rem] -translate-x-1/2 rounded-full bg-primary/15 blur-[120px]" aria-hidden="true" />
           <div className="relative mx-auto max-w-3xl px-5 text-center">
             <p className="reveal mb-4 text-xs font-medium tracking-[0.2em] text-primary uppercase">
-              06 — Contatti
+              07 — Contatti
             </p>
             <h2 className="reveal text-[clamp(1.9rem,5vw,3rem)] font-semibold">Parliamone.</h2>
             <p className="reveal mx-auto mt-4 max-w-lg text-lg text-surface-dark-foreground/60">
